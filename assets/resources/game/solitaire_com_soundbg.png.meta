@@ -1,0 +1,36 @@
+{
+  "ver": "2.3.4",
+  "uuid": "f28a3ef9-8db7-4a82-8302-81c3d253b816",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 705,
+  "height": 458,
+  "platformSettings": {},
+  "subMetas": {
+    "solitaire_com_soundbg": {
+      "ver": "1.0.4",
+      "uuid": "46b5178b-3896-4e2d-b3f8-100b965e30af",
+      "rawTextureUuid": "f28a3ef9-8db7-4a82-8302-81c3d253b816",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 705,
+      "height": 458,
+      "rawWidth": 705,
+      "rawHeight": 458,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

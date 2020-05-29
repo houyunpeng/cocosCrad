@@ -1,0 +1,36 @@
+{
+  "ver": "2.3.4",
+  "uuid": "46aaece8-c22c-4948-b79f-3721920d83db",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 399,
+  "height": 107,
+  "platformSettings": {},
+  "subMetas": {
+    "solitaire_end_tutorial": {
+      "ver": "1.0.4",
+      "uuid": "914655e9-f91d-4c58-ac20-9f9d97100889",
+      "rawTextureUuid": "46aaece8-c22c-4948-b79f-3721920d83db",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 399,
+      "height": 107,
+      "rawWidth": 399,
+      "rawHeight": 107,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

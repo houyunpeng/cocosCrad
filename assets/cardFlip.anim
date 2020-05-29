@@ -1,0 +1,16 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "cardFlip",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 0,
+  "sample": 20,
+  "speed": 1,
+  "wrapMode": 1,
+  "curveData": {
+    "props": {
+      "skewX": []
+    }
+  },
+  "events": []
+}

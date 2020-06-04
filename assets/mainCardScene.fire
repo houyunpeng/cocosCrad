@@ -5645,7 +5645,7 @@
       "array": [
         0,
         0,
-        417.42424462409946,
+        417.5324977995725,
         0,
         0,
         0,
@@ -5717,8 +5717,8 @@
       "width": 640,
       "height": 1136
     },
-    "_fitWidth": false,
-    "_fitHeight": true,
+    "_fitWidth": true,
+    "_fitHeight": false,
     "_id": "2dY2NiOvhKX7MOd9sF8a2t"
   },
   {
@@ -5744,8 +5744,8 @@
     "_isAbsBottom": true,
     "_isAbsHorizontalCenter": true,
     "_isAbsVerticalCenter": true,
-    "_originalWidth": 0,
-    "_originalHeight": 0,
+    "_originalWidth": 640,
+    "_originalHeight": 1136,
     "_id": "f18N2YA55JdqZW9h22c/tD"
   }
 ]

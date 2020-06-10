@@ -22,6 +22,14 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        scoreNode:{
+            default:null,
+            type:cc.Node
+        },
+        timerNode:{
+            default:null,
+            type:cc.Node
+        },
         cardSpriteFrame:{
             default:[],
             type:[cc.SpriteFrame]
@@ -77,6 +85,10 @@ cc.Class({
         allHolderCards:{
             default:[],
             type:[cc.Node]
+        },
+        timerLeftNode:{
+            default:null,
+            type:cc.Node
         }
 
         
@@ -142,7 +154,11 @@ cc.Class({
                     .call((n)=>{
                         cc.log("第二秒执行完毕");
                         cc.log(n);
-                        n.setSiblingIndex(-1);
+                        if (n.setSiblingIndex instanceof Function) {
+                            n.setSiblingIndex(-1);
+                        }else{
+                            cc.log("不能响应函数");
+                        }
                         // var p = node.parent;
                         // node.removeFromParent();
                         // p.addChild(node);
@@ -177,7 +193,15 @@ cc.Class({
                     t().to(0.2,{position:cc.v2(this.originBg.node.x,this.originBg.node.y)}),
                     t().then(t().to(0.1,{skewY:10,scaleX:0})).then(t().to(0.1,{skewY:0,scaleX:1}))
                 ).call((n)=>{
-                    n.setSiblingIndex(-1);
+                    cc.log("MMMMMMMMMMMMMM----",n.setSiblingIndex);
+                    cc.log(n.getComponent("cardSprite").numValue);
+                    cc.log(n.getComponent("cardSprite").colorValue);
+                    
+                    if (n.setSiblingIndex instanceof Function) {
+                        n.setSiblingIndex(-1);
+                    }else{
+                        cc.log("不能响应函数");
+                    }
                 })
                 .start();
                 this.allCards.push(holderNode);
@@ -318,7 +342,7 @@ cc.Class({
                 cardSprite.zIndex = 10;
                 // cardSprite.scaleX = 1;
                 
-                cardComponent.node.flipStatus = flipStatusInit;
+                cardComponent.flipStatus = flipStatusInit;
                 
                 this.allCards.push(cardSprite);
             }
@@ -343,6 +367,82 @@ cc.Class({
         return outNode;
     },
 
+    flipNewCard:function (line) {
+        var name = "playingCardsBg"+line;
+        var playingNode = cc.find(name,this.node);
+        var node = playingNode.children.slice(-1)[0];
+        if (node) {
+            var com = node.getComponent("cardSprite");
+            if (com.flipStatus === flipStatusInit) {
+                node.scaleY = 0;
+                node.scaleX = -1;
+                cc.tween(node).to(0.1,{scaleY:1}).start();
+                com.flipStatus = flipStatusPlaying;
+            }
+        }
+
+
+    },
+
+    fallDown:function (dragingNodes,playingNode,currentPosition,toLine) {
+        var childNode = this.findOutCardSpriteFromParent(playingNode);
+
+        var comLast = childNode.getComponent("cardSprite");
+        var rowTop = comLast ? comLast.row : 0;
+        var toOriPosition = comLast ? childNode.position : cc.v2(0,0);
+        var toOriPositionDeltY = comLast ? 30 : 0;
+        var oriLine = dragingNodes[0].line;
+        for (let m = 0; m < dragingNodes.length; m++){
+            var node = dragingNodes[m];
+            var toPoint = cc.v2(toOriPosition.x,toOriPosition.y - toOriPositionDeltY - m*30);
+
+            var worldPoint = node.parent.convertToWorldSpaceAR(node.position);
+            node.position = playingNode.convertToNodeSpaceAR(worldPoint);
+
+            
+            node.parent = playingNode;
+        
+            node.row = rowTop + m + 1;
+            node.line = toLine;
+
+            cc.tween(node).to(0.15,{position:cc.v2(toPoint)})
+            .call((n)=>{
+                
+                if (n.getComponent("cardSprite").flipStatus === flipStatusHolder) {
+                    this.allHolderCards.pop();
+                    n.getComponent("cardSprite").flipStatus = flipStatusPlaying;
+
+                    if (this.allHolderCards.length >= 3) {
+                        var width = this.someCardBg.node.width;
+                        var left = this.someCardBg.node.x;
+                        var top = this.someCardBg.node.y;
+                        var height = this.someCardBg.node.height;
+                        var gap = ( -width + 80*3)/2;
+                        var i = 0;
+                        var gapLeft = n.width - gap;
+                        for (let j = this.allHolderCards.length - 3; j < this.allHolderCards.length; j++) {
+                            const holderNode = this.allHolderCards[j];
+                            var t = cc.tween;
+                            t(holderNode).to(0.2,{position:cc.v2(left - gap + i*gap,top)}).start();
+                            i++;
+                        }
+                    }
+
+
+                }
+                
+
+            })
+            .start();
+
+            
+        }
+        if (oriLine != undefined) {
+            this.flipNewCard(oriLine);
+        }
+        
+    },
+
     findTerminalToFallDown:function(dragingNodes,currentPosition) {
         let firstDraingNode = dragingNodes[0];
         for (let i = 0; i < 7; i++) {
@@ -358,48 +458,11 @@ cc.Class({
 
                 if (comLast.numValue - compOri.numValue === 1 && 
                     comLast.colorValue%2 != compOri.colorValue%2) {
-                    for (let m = 0; m < dragingNodes.length; m++){
-                        var node = dragingNodes[m];
-                        var toPoint = cc.v2(childNode.x,childNode.y - (m+1)*30);
-                        var worldPoint = this.node.convertToWorldSpaceAR(currentPosition);
-                        node.position = playingNode.convertToNodeSpaceAR(worldPoint);
-                        node.parent = playingNode;
+
+                    this.fallDown(dragingNodes,playingNode,currentPosition,i);
                     
-                        node.row = comLast.node.row + m + 1;
-                        node.line = i;
-
-                        cc.tween(node).to(0.15,{position:cc.v2(toPoint)})
-                        .call((n)=>{
-                            
-                            if (compOri.flipStatus === flipStatusHolder) {
-                                this.allHolderCards.pop();
-                                n.flipStatus = flipStatusPlaying;
-        
-                                if (this.allHolderCards.length >= 3) {
-                                    var width = this.someCardBg.node.width;
-                                    var left = this.someCardBg.node.x;
-                                    var top = this.someCardBg.node.y;
-                                    var height = this.someCardBg.node.height;
-                                    var gap = ( -width + 80*3)/2;
-                                    var i = 0;
-                                    var gapLeft = n.width - gap;
-                                    for (let j = this.allHolderCards.length - 3; j < this.allHolderCards.length; j++) {
-                                        const holderNode = this.allHolderCards[j];
-                                        var t = cc.tween;
-                                        t(holderNode).to(0.2,{position:cc.v2(left - gap + i*gap,top)}).start();
-                                        i++;
-                                    }
-                                }
-        
-        
-                            }
-                            
-
-                        })
-                        .start();
-
-                        
-                    }
+                    return;
+                    
                 }else{
                     // 移动失败返回原位
                     for (let i = 0; i < dragingNodes.length; i++) {
@@ -416,17 +479,94 @@ cc.Class({
 
 
     },
-    bringNodeToFront:function(node){
-        node.setSiblingIndex(-1);
+    
+    findAutoTerminalToFallDown:function(dragingNodes){
+        let firstDraingNode = dragingNodes[0];
+        var compOri = firstDraingNode.getComponent("cardSprite");
+        for (let i = 0; i < 7; i++) {
+            var name = "playingCardsBg"+i;
+            var playingNode = cc.find(name,this.node);
+            var rect = new cc.Rect(playingNode.x - playingNode.width/2,playingNode.y,playingNode.width,playingNode.height);
+
+            var lastNode = playingNode.children.slice(-1)[0];
+            
+            if (!lastNode && compOri.numValue == 13) {
+                this.fallDown(dragingNodes,playingNode,firstDraingNode.position,i);
+                return;
+            }else if (lastNode) {
+                var comLast = lastNode.getComponent("cardSprite");
+                if (lastNode && comLast.flipStatus === flipStatusPlaying) {
+                    if (comLast.numValue - compOri.numValue === 1 && 
+                        comLast.colorValue%2 != compOri.colorValue%2) {
+
+                        this.fallDown(dragingNodes,playingNode,lastNode.position,i);
+                        return;
+                    }else{
+                    }
+                }else{
+                }
+            }
+            
+
+
+            
+        }
+        // 移动失败返回原位
+        for (let i = 0; i < dragingNodes.length; i++) {
+            const dragingNode = dragingNodes[i];
+            dragingNode.getComponent("cardSprite").backToPrePosition();
+            
+        }
     },
 
 
+    startTimer:function(){
+        var count = 60*5;
+        this.schedule(function(){
+            cc.log(count);
+            let string = Math.floor(count / 60) +":"+ this.addZero(count%60);
+            this.timerNode.getComponent(cc.Label).string = string;
+            this.playTimeLeftAnimation(count);
+            count --;
+        },1,count,0);
+    },
 
+    playTimeLeftAnimation:function(count){
+        var file = "";
+        if (count == 300) {
+            file = "game/com_timer_"+count;
+        }else if (count == 240) {
+            file = "game/com_timer_"+count;
+        }else if (count == 180) {
+            file = "game/com_timer_"+count;
+        }else if (count == 120) {
+            file = "game/com_timer_"+count;
+        }else{
+            return;
+        }
 
+        var self = this;
+        cc.loader.loadRes(file,cc.SpriteFrame,function(err,spriteFrame){
+            cc.log(err,spriteFrame);
+            if(!err){
+                self.timerLeftNode.getComponent(cc.Sprite).spriteFrame = spriteFrame;
+            }
+        });
+        var animtion = this.timerLeftNode.getComponent(cc.Animation);
+        animtion.play();
+    },
+
+    addZero:function(count){
+        if (count < 10) {
+            return "0"+count;
+        }
+        return count;
+    },
 
 
     start () {
         this.startGame();
+        this.startTimer();
         // this.testPostsion();
     },
 

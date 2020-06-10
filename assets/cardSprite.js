@@ -122,9 +122,9 @@ cc.Class({
             // this.node.anchor = cc.v2(anchor.x,anchor.y);
             // this.node.position = this.node.parent.convertToNodeSpaceAR(touch.getLocation());
             // this.node.zOrder = -1;
-            this.isDraging = true;
+            
 
-            this.node.setSiblingIndex = -1;
+            // this.node.setSiblingIndex = -1;
             if(this.flipStatus === flipStatusPlaying){
                 
                 var parent = this.node.parent;
@@ -161,6 +161,9 @@ cc.Class({
         },this);
 
         this.node.on(cc.Node.EventType.TOUCH_MOVE,function(touch,event){
+
+            this.isDraging = true;
+
             touch.stopPropagation();
             var point = touch.getLocation();
             cc.log(point.x,point.y);
@@ -199,13 +202,18 @@ cc.Class({
             // var controller = this.node.parent.getComponent("mainScene");
             // cc.log(controller);
             // controller.cardSpriteCallBack(this.node,touch);
-            this.anchor = cc.v2(0.5,0.5);
-
+            // this.anchor = cc.v2(0.5,0.5);
             var parent = cc.find("Canvas/bg");
             var mainScene = parent.getComponent("mainScene");
             if (mainScene) {
-                mainScene.findTerminalToFallDown(this.dragingCards,parent.convertToNodeSpaceAR(touch.getLocation()));
+                if (this.isDraging) {
+                    mainScene.findTerminalToFallDown(this.dragingCards,parent.convertToNodeSpaceAR(touch.getLocation()));
+                }else{
+                    mainScene.findAutoTerminalToFallDown(this.dragingCards);
+                }
+                
             }
+            
 
             this.dragingCards = [];
 

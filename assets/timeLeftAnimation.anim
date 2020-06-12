@@ -1,0 +1,50 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "timeLeftAnimation",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 1.2,
+  "sample": 10,
+  "speed": 1,
+  "wrapMode": 1,
+  "curveData": {
+    "paths": {},
+    "props": {
+      "x": [
+        {
+          "frame": 0,
+          "value": -600,
+          "curve": [
+            0.0850797592893304,
+            0.41940013372815,
+            0.7238800267456298,
+            1.3268507020727864
+          ]
+        },
+        {
+          "frame": 0.5,
+          "value": 0
+        },
+        {
+          "frame": 0.7,
+          "value": 0,
+          "curve": [
+            0.27963174189343315,
+            -0.32123187225028516,
+            0.9138667101189506,
+            0.5268698060941827
+          ]
+        },
+        {
+          "frame": 1,
+          "value": 0
+        },
+        {
+          "frame": 1.2,
+          "value": 600
+        }
+      ]
+    }
+  },
+  "events": []
+}

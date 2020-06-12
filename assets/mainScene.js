@@ -38,6 +38,10 @@ cc.Class({
             default:null,
             type:cc.Prefab
         },
+        pausePrefab:{
+            default:null,
+            type:cc.Prefab
+        },
         finaleScoreArray:{
             default:[],
             type:[cc.Sprite]
@@ -110,7 +114,12 @@ cc.Class({
     },
 
     pausuBtnAction:function(){
-        cc.log(Config.Global.cardItemSize);
+
+        var pauseSprite = cc.instantiate(this.pausePrefab);
+        pauseSprite.parent = this.node;
+        var pauseScript = pauseSprite.getComponent("pauseScript");
+
+
     },
     soundBtnAction:function(){
         cc.log(this.someCardBg.node.width);

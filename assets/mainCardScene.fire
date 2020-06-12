@@ -2808,7 +2808,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 117.71,
+      "width": 128.75,
       "height": 40
     },
     "_anchorPoint": {
@@ -2820,7 +2820,7 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        10.794625000000003,
+        10.794624999999996,
         13,
         0,
         0,
@@ -2865,7 +2865,7 @@
     "_lineHeight": 40,
     "_enableWrapText": true,
     "_N$file": {
-      "__uuid__": "f2f6d3a3-6c99-4d58-b1e5-eaa8cdc409de"
+      "__uuid__": "b733cf0e-3983-43ec-9aab-2926542b1c14"
     },
     "_isSystemFontUsed": false,
     "_spacingX": 0,
@@ -2890,8 +2890,8 @@
     "alignMode": 1,
     "_target": null,
     "_alignFlags": 42,
-    "_left": 76.939625,
-    "_right": 55.350375,
+    "_left": 71.419625,
+    "_right": 49.830375,
     "_top": 20.802,
     "_bottom": 26.798000000000002,
     "_verticalCenter": 13,
@@ -3538,7 +3538,7 @@
     "_lineHeight": 40,
     "_enableWrapText": true,
     "_N$file": {
-      "__uuid__": "f2f6d3a3-6c99-4d58-b1e5-eaa8cdc409de"
+      "__uuid__": "b733cf0e-3983-43ec-9aab-2926542b1c14"
     },
     "_isSystemFontUsed": false,
     "_spacingX": 0,
@@ -6025,6 +6025,9 @@
     "cardPrefab": {
       "__uuid__": "cd13bd70-fe1a-486a-b8dd-a21dd8764bf9"
     },
+    "pausePrefab": {
+      "__uuid__": "7c366fba-92d9-4926-be50-b731a49708bb"
+    },
     "finaleScoreArray": [
       {
         "__id__": 81
@@ -6185,7 +6188,7 @@
       "array": [
         0,
         0,
-        433.8787272960038,
+        434.89360081606367,
         0,
         0,
         0,

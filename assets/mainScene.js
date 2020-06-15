@@ -93,6 +93,30 @@ cc.Class({
         timerLeftNode:{
             default:null,
             type:cc.Node
+        },
+        bottomFunctionNode:{
+            default:null,
+            type:cc.Node
+        },
+        doubleFaildEffectAudio: {
+            default: null,
+            type: cc.AudioClip
+        },
+        clickEffectAudio: {
+            default: null,
+            type: cc.AudioClip
+        },
+        bgmAudio: {
+            default: null,
+            type: cc.AudioClip
+        },
+        fapaiAudio: {
+            default: null,
+            type: cc.AudioClip
+        },
+        fanpaiEffectAudio: {
+            default: null,
+            type: cc.AudioClip
         }
 
         
@@ -116,23 +140,34 @@ cc.Class({
     pausuBtnAction:function(){
 
         var pauseSprite = cc.instantiate(this.pausePrefab);
-        pauseSprite.parent = this.node;
+        pauseSprite.parent = this.node.parent;
+        pauseSprite.setSiblingIndex = -1;
         var pauseScript = pauseSprite.getComponent("pauseScript");
+        var animation = pauseSprite.getComponent(cc.Animation);
+        animation.play();
 
+        this.pauseOrResume(true);
 
+        this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
     soundBtnAction:function(){
         cc.log(this.someCardBg.node.width);
+        this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
     askBtnAction:function(){
         cc.log("allcards=",this.allCards);
+        this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
     undoBtnAction:function(){
         cc.log("撤销");
+        this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
     indecatorBtnAction:function(){
         cc.log("indecatorBtn");
+        this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
+
+    
     resreshBtnAction:function () {
       cc.log("重新翻牌");  
         var width = this.someCardBg.node.width;
@@ -459,7 +494,7 @@ cc.Class({
     },
 
     tryToFindTerminalToFallDown:function (dragingNodes,currentPosition) {
-        if (draingNodes.length == 0) {
+        if (dragingNodes.length == 0) {
             return;
         }
         var firstDragingNode = dragingNodes[0];
@@ -589,7 +624,7 @@ cc.Class({
             
         }
 
-
+        cc.audioEngine.play(this.doubleFaildEffectAudio, false, 1);
 
         return false;
     },
@@ -671,16 +706,6 @@ cc.Class({
     },
 
 
-    startTimer:function(){
-        var count = 60*5;
-        this.schedule(function(){
-            cc.log(count);
-            let string = Math.floor(count / 60) +":"+ this.addZero(count%60);
-            this.timerNode.getComponent(cc.Label).string = string;
-            this.playTimeLeftAnimation(count);
-            count --;
-        },1,count,0);
-    },
 
     playTimeLeftAnimation:function(count){
         var file = "";
@@ -714,12 +739,47 @@ cc.Class({
         return count;
     },
 
+    
+
 
     start () {
         this.startGame();
+
+        this.count = 60*5;
         this.startTimer();
+
+        this.bgmAudio_current = cc.audioEngine.playMusic(this.bgmAudio,false,1);
+
         // this.testPostsion();
     },
+
+    startTimer:function(){
+        this.schedule(this.timerAction,1,this.count,0);
+    },
+    timerAction:function(){
+        cc.log(this.count);
+        let string = Math.floor(this.count / 60) +":"+ this.addZero(this.count%60);
+        this.timerNode.getComponent(cc.Label).string = string;
+        this.playTimeLeftAnimation(this.count);
+        this.count --;
+    },
+    pauseOrResume:function(isPause){
+        if(isPause){
+            this.unschedule(this.timerAction);
+
+
+            this.bottomFunctionNode.opacity = 0;
+            cc.audioEngine.pauseMusic(this.bgmAudio_current);
+        }else{
+            this.startTimer();
+
+            this.bottomFunctionNode.opacity = 255;
+
+            cc.audioEngine.resumeMusic(this.bgmAudio_current);
+        }
+    },
+
+
 
     testPostsion:function () {
         var cardSprite = cc.instantiate(this.cardPrefab);

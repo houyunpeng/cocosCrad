@@ -37,9 +37,32 @@ cc.Class({
 
     resumeBtnAction:function(){
         this.node.removeFromParent();
+
+        var node = cc.find("Canvas/bg");
+        node.getComponent("mainScene").pauseOrResume(false);
+
     },
     endNowBtnAction:function () {
         
+    },
+
+    addTouchEvent:function(){
+        cc.log("添加点击事件");
+
+        
+        this.node.on(cc.Node.EventType.TOUCH_START,function(touch,event){
+            
+            touch.stopPropagation();
+            
+        },this);
+
+        this.node.on(cc.Node.EventType.TOUCH_MOVE,function(touch,event){
+            touch.stopPropagation();
+
+        },this);
+        this.node.on(cc.Node.EventType.TOUCH_END,function(touch,event){
+            touch.stopPropagation();
+        },this);
     },
     // LIFE-CYCLE CALLBACKS:
 

@@ -1,5 +1,6 @@
 {
   "title": "cocosCrad",
+
   "packageName": "org.cocos2d.demo",
   "startScene": "c9b2bf93-f360-49ef-9d7d-32d72ff33331",
   "excludeScenes": [],
@@ -18,6 +19,7 @@
   "md5Cache": true,
   "encryptJs": true,
   "xxteaKey": "f79264d9-4d95-4d",
+
   "zipCompressJs": true,
   "fb-instant-games": {},
   "android": {

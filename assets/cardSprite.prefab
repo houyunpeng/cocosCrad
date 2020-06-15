@@ -551,6 +551,16 @@
     "smallFrameFile": null,
     "bigFrameFile": null,
     "rendered": false,
+    "flipStatus": 0,
+    "numValue": 0,
+    "colorValue": 0,
+    "bgValue": 0,
+    "isDraging": false,
+    "line": -1,
+    "row": -1,
+    "preParent": null,
+    "prePosition": null,
+    "dragingCards": [],
     "_id": ""
   },
   {

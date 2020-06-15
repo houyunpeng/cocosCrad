@@ -5,6 +5,10 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+const flipStatusInit = 0;
+const flipStatusHolder = 1;
+const flipStatusPlaying = 2;
+const flipStatusScoring = 3;
 
 cc.Class({
     extends: cc.Component,
@@ -32,8 +36,22 @@ cc.Class({
         smallFrameFile:null,
         bigFrameFile:null,
 
-        rendered:false
+        rendered:false,
+        flipStatus:flipStatusInit,
         
+        numValue:0,
+        colorValue:0,
+        bgValue:0,
+
+        isDraging:false,//正在拖动
+
+
+        line:-1,//
+        row:-1,//
+        preParent:null,
+        prePosition:null,
+
+        dragingCards:[]
         
     },
 
@@ -103,14 +121,35 @@ cc.Class({
             var anchor = cc.v2(0.5 + touchP.x*2/this.node.width,0.5 + touchP.y*2/this.node.height);
             // this.node.anchor = cc.v2(anchor.x,anchor.y);
             // this.node.position = this.node.parent.convertToNodeSpaceAR(touch.getLocation());
-
-            // this.node.setSiblingIndex(-1);
-            return;
-
-            var touchPoint = this.node.parent.parent.convertToNodeSpaceAR(touch.getLocation());
-            this.node.parent = this.node.parent.parent;
-            this.node.setPosition(touchPoint.x,touchPoint.y);
+            // this.node.zOrder = -1;
             
+            this.dragingCards = [];
+            // this.node.setSiblingIndex = -1;
+            if(this.flipStatus === flipStatusPlaying){
+                
+                var parent = this.node.parent;
+                var children = parent.children;
+                for (let i = this.node.row; i < children.length; i++) {
+                    
+                    const subNode = children[i];
+
+                    subNode.getComponent("cardSprite").prePoint = subNode.position;
+                    subNode.getComponent("cardSprite").preParent = subNode.parent;
+
+                    cc.log(subNode.name);
+                    if (subNode.row >= this.node.row && subNode.line === this.node.line) {
+                        
+                        this.dragingCards.push(subNode);
+
+                    }
+                    
+                }
+
+            }else if(this.flipStatus === flipStatusHolder){
+                this.dragingCards.push(this.node);
+                this.prePoint = this.node.position;
+                this.preParent = this.node.parent;
+            }
             // var target = event.target;
             // var point = event.location;
             // cc.log(target);
@@ -122,18 +161,39 @@ cc.Class({
         },this);
 
         this.node.on(cc.Node.EventType.TOUCH_MOVE,function(touch,event){
+
+            this.isDraging = true;
+
             touch.stopPropagation();
             var point = touch.getLocation();
             cc.log(point.x,point.y);
             // var touchPoint1 = this.parent.convertToNodeSpaceAR(touch.getLocation());
             // this.setPosition(touchPoint1.x,touchPoint1.y);
-
             //将纸牌移动到bg上
-            var parent = cc.find("Canvas/bg");
-            this.parent = parent;
-            this.position = parent.convertToNodeSpaceAR(point);
+            if (this.flipStatus === flipStatusHolder) {
+                var parent = cc.find("Canvas/bg");
+                this.node.parent = parent;
+                this.node.position = parent.convertToNodeSpaceAR(point);
+            } else if(this.flipStatus === flipStatusPlaying){
+                
+                var parent = this.node.parent;
+                var children = parent.children;
+                for (let i = 0; i < this.dragingCards.length; i++) {
+                    const subNode = this.dragingCards[i];
 
-        },this.node);
+                    let prePoint = touch.getPreviousLocation();
+                    let curPoint = touch.getLocation();
+
+                    var position = subNode.position;
+                    position.y = position.y + (curPoint.y - prePoint.y);
+                    position.x = position.x + (curPoint.x - prePoint.x);
+                    subNode.position = position;
+                    
+                }
+
+            }
+
+        },this);
         this.node.on(cc.Node.EventType.TOUCH_END,function(touch,event){
             cc.log("点击结束");
             touch.stopPropagation();
@@ -142,17 +202,30 @@ cc.Class({
             // var controller = this.node.parent.getComponent("mainScene");
             // cc.log(controller);
             // controller.cardSpriteCallBack(this.node,touch);
-            this.anchor = cc.v2(0.5,0.5);
-
+            // this.anchor = cc.v2(0.5,0.5);
             var parent = cc.find("Canvas/bg");
             var mainScene = parent.getComponent("mainScene");
             if (mainScene) {
-                mainScene.findTerminalToFallDown(this.node,parent.convertToNodeSpaceAR(touch.getLocation()));
+                if (this.isDraging) {
+                    mainScene.tryToFindTerminalToFallDown(this.dragingCards,parent.convertToNodeSpaceAR(touch.getLocation()));
+                }else{
+                    mainScene.tryToAutoFindTerminalToFallDown(this.dragingCards);
+                }
+                
             }
             
 
+            this.dragingCards = [];
+
+            this.isDraging = false;
+
 
         },this);
+    },
+
+    backToPrePosition:function(){
+        // this.node.parent = this.preParent;
+        cc.tween(this.node).to(0.2,{position:cc.v2(this.prePoint.x,this.prePoint.y)}).start();
     },
 
     update (dt) {
@@ -169,6 +242,10 @@ cc.Class({
                 // this.smallColor.opacity = 1;
                 // this.bigColor.opacity = 1;
                 this.node.resumeSystemEvents();
+                this.num.scaleX = -1;
+                this.smallColor.scaleX = -1;
+                this.bigColor.scaleX = -1;
+                
             }
         }else{
             
@@ -176,7 +253,12 @@ cc.Class({
                 this.loadNodesSpriteFrame("poker/poker_back",this.node.getComponent(cc.Sprite));
                 this.rendered = false;
                 this.node.pauseSystemEvents();
+                this.num.scaleX = 0;
+                this.smallColor.scaleX = 0;
+                this.bigColor.scaleX = 0;
             }
+                
+            
             // this.num.opacity = 0;
             // this.smallColor.opacity = 0;
             // this.bigColor.opacity = 0;

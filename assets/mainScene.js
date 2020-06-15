@@ -46,6 +46,10 @@ cc.Class({
             default:null,
             type:cc.Prefab
         },
+        endGamePrefab:{
+            default:null,
+            type:cc.Prefab
+        },
         finaleScoreArray:{
             default:[],
             type:[cc.Sprite]
@@ -485,7 +489,7 @@ cc.Class({
             var worldPoint = node.parent.convertToWorldSpaceAR(node.position);
             var bg_position_ori = this.node.convertToNodeSpaceAR(worldPoint);
 
-            var toWorldPosi = childNode.parent.convertToWorldSpaceAR(toPoint);
+            var toWorldPosi = childNode ?childNode.parent.convertToWorldSpaceAR(toPoint):playingNode.parent.convertToWorldSpaceAR(cc.v2(0,0));
             var bg_position_to = this.node.convertToNodeSpaceAR(toWorldPosi);
             // node.position = playingNode.convertToNodeSpaceAR(worldPoint);
             
@@ -494,6 +498,7 @@ cc.Class({
         
             node.row = rowTop + m + 1;
             node.line = toLine;
+            node.c_posi = toPoint;
 
             if (node.getComponent("cardSprite").flipStatus === flipStatusHolder) {
                 this.allHolderCards.pop();
@@ -501,7 +506,7 @@ cc.Class({
             cc.tween(node).to(0.15,{position:cc.v2(bg_position_to)})
             .call((n)=>{
                 n.parent = playingNode;
-                n.position = toPoint;
+                n.position = n.c_posi;
                 if (n.getComponent("cardSprite").flipStatus === flipStatusHolder) {
                     // this.allHolderCards.pop();//为什么pop()方法有时候不会删除最有一个元素呢？
                     // this.allHolderCards.splice(this.allHolderCards.length - 1,1);//删除最有一个元素

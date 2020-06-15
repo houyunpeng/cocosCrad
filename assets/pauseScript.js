@@ -43,6 +43,12 @@ cc.Class({
 
     },
     endNowBtnAction:function () {
+        this.node.removeFromParent();
+
+        var node = cc.find("Canvas/bg");
+        var mainJs = node.getComponent("mainScene");
+        var endGameNode = cc.instantiate(mainJs.endGamePrefab);
+        endGameNode.parent = node;
         
     },
 

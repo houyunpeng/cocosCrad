@@ -22,7 +22,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        scoreNode:{
+        scoreLabelNode:{
             default:null,
             type:cc.Node
         },
@@ -35,6 +35,10 @@ cc.Class({
             type:[cc.SpriteFrame]
         },
         cardPrefab:{
+            default:null,
+            type:cc.Prefab
+        },
+        increaseScorePrefab:{
             default:null,
             type:cc.Prefab
         },
@@ -117,6 +121,10 @@ cc.Class({
         fanpaiEffectAudio: {
             default: null,
             type: cc.AudioClip
+        },
+        moveEffectAudio:{
+            default:null,
+            type:cc.AudioClip
         }
 
         
@@ -167,7 +175,7 @@ cc.Class({
         this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
 
-    
+
     resreshBtnAction:function () {
       cc.log("重新翻牌");  
         var width = this.someCardBg.node.width;
@@ -259,8 +267,30 @@ cc.Class({
 
     // LIFE-CYCLE CALLBACKS:
 
+    testRandData:function(){
+        var a = [];
+        for (let i = 0; i < 52; i++) {
+            a.push(i);
+        }
+
+        this.data = [];
+        while (a.length > 0) {
+            var rand = Math.floor(Math.random()*100 % a.length);
+            this.data.push(a[rand]);
+            a.splice(rand,1);
+        }
+
+
+    },
+
     onLoad () {
         cc.log("on load");
+        // this.seed = parseInt('E1E3CAE2ED4D244C',16);
+        // for (let i = 0; i < 99; i++) {
+        //     cc.log(this.randRange(1,99));
+            
+        // }
+        this.testRandData();
         this.createCards();
     },
 
@@ -271,7 +301,7 @@ cc.Class({
 
         var index = 0;
 
-
+        this.fapaiAudio_current = cc.audioEngine.playMusic(this.fapaiAudio,true,1);
         for (let row = 0; row < 7; row++) {
             let sprite = null;
             for (let line = row; line < 7; line++) {
@@ -305,6 +335,7 @@ cc.Class({
                         n.getComponent("cardSprite").flipStatus = flipStatusPlaying;
                     }
                     
+                    cc.audioEngine.stop(this.fapaiAudio_current);
 
                 })
                 .start();
@@ -362,7 +393,7 @@ cc.Class({
 
     createCards:function(){
         
-        
+        var index = 0;
         for (let j = 0; j < 4; j++) {
             
             for(var i = 2 ; i <= 14 ; i++){
@@ -373,17 +404,19 @@ cc.Class({
                 
                 var cardSprite = cc.instantiate(this.cardPrefab);
                 var cardComponent = cardSprite.getComponent("cardSprite");
-                // cardComponent.loadNodesSpriteFrame("poker/poker_front.png",cardSprite.getComponent(cc.Sprite));
-                // cardComponent.loadNodesSpriteFrame("poker/poker_0_"+i+ ".png",cardComponent.num.getComponent(cc.Sprite));
-                // cardComponent.loadNodesSpriteFrame("poker/poker_big_0.png",cardComponent.smallColor.getComponent(cc.Sprite));
-                // cardComponent.loadNodesSpriteFrame("poker/poker_big_0.png",cardComponent.bigColor.getComponent(cc.Sprite));
+                
+                var value = this.data[index];
+                var num = value % 13 + 2;
+                var colorNum = Math.floor(value / 13);
+
+                index++;
                 cardComponent.setRootNodeFile("poker/poker_front");
-                cardComponent.setNumFile("poker/poker_"+j%2+"_"+i);
-                cardComponent.setSmallFile("poker/poker_big_"+j);
+                cardComponent.setNumFile("poker/poker_"+colorNum%2+"_"+num);
+                cardComponent.setSmallFile("poker/poker_big_"+colorNum);
                 this.node.addChild(cardSprite);
                
-                cardComponent.numValue = i === 14 ? 1 : i;
-                cardComponent.colorValue = j;
+                cardComponent.numValue = num === 14 ? 1 : num;
+                cardComponent.colorValue = colorNum;
                 
                 cardSprite.setPosition(x,y);
                 cardSprite.zIndex = 10;
@@ -435,6 +468,9 @@ cc.Class({
     },
 
     fallDown:function (dragingNodes,playingNode,currentPosition,toLine) {
+
+
+        
         var childNode = this.findOutCardSpriteFromParent(playingNode);
 
         var comLast = childNode.getComponent("cardSprite");
@@ -447,20 +483,28 @@ cc.Class({
             var toPoint = cc.v2(toOriPosition.x,toOriPosition.y - toOriPositionDeltY - m*30);
 
             var worldPoint = node.parent.convertToWorldSpaceAR(node.position);
-            node.position = playingNode.convertToNodeSpaceAR(worldPoint);
+            var bg_position_ori = this.node.convertToNodeSpaceAR(worldPoint);
 
+            var toWorldPosi = childNode.parent.convertToWorldSpaceAR(toPoint);
+            var bg_position_to = this.node.convertToNodeSpaceAR(toWorldPosi);
+            // node.position = playingNode.convertToNodeSpaceAR(worldPoint);
             
-            node.parent = playingNode;
+            node.position = bg_position_ori;
+            node.parent = this.node;
         
             node.row = rowTop + m + 1;
             node.line = toLine;
 
-            cc.tween(node).to(0.15,{position:cc.v2(toPoint)})
+            if (node.getComponent("cardSprite").flipStatus === flipStatusHolder) {
+                this.allHolderCards.pop();
+            }
+            cc.tween(node).to(0.15,{position:cc.v2(bg_position_to)})
             .call((n)=>{
-                
+                n.parent = playingNode;
+                n.position = toPoint;
                 if (n.getComponent("cardSprite").flipStatus === flipStatusHolder) {
-                    // this.allHolderCards.pop();为什么pop()方法有时候不会删除最有一个元素呢？
-                    this.allHolderCards.splice(this.allHolderCards.length - 1,1);//删除最有一个元素
+                    // this.allHolderCards.pop();//为什么pop()方法有时候不会删除最有一个元素呢？
+                    // this.allHolderCards.splice(this.allHolderCards.length - 1,1);//删除最有一个元素
                     n.getComponent("cardSprite").flipStatus = flipStatusPlaying;
 
                     if (this.allHolderCards.length > 0) {
@@ -487,7 +531,7 @@ cc.Class({
             })
             .start();
 
-            
+            this.moveEffectAudio_current = cc.audioEngine.playEffect(this.moveEffectAudio);
         }
         
         
@@ -499,14 +543,21 @@ cc.Class({
         }
         var firstDragingNode = dragingNodes[0];
         let line = firstDragingNode.line;
-        var  isfoundTernimal = this.findTerminalToFallDown(dragingNodes,currentPosition);
+        var  isfoundTernimal = this.findScoringPlaceToFallDown(dragingNodes,currentPosition);
         if(!isfoundTernimal){
-            if (!this.findScoringPlaceToFallDown(dragingNodes,currentPosition)) {
+            if (!this.findTerminalToFallDown(dragingNodes,currentPosition)) {
                 this.fallBackOriginPosition(dragingNodes);
+                cc.audioEngine.play(this.doubleFaildEffectAudio, false, 1);
                 return;
+            }else{
+                this.playGetScoreAnimation(dragingNodes[0],20);
+                this.flipNewCard(line);
             }
+        }else{
+            this.playGetScoreAnimation(dragingNodes[0],20);
+            this.flipNewCard(line);
         }
-        this.flipNewCard(line);
+        
     },
 
     tryToAutoFindTerminalToFallDown:function (dragingNodes) {
@@ -515,14 +566,21 @@ cc.Class({
         }
         var firstDragingNode = dragingNodes[0];
         let line = firstDragingNode.line;
-        var  isfoundTernimal = this.findAutoTerminalToFallDown(dragingNodes);
+        var  isfoundTernimal = this.findScoringPlaceToFallDown(dragingNodes);
         if(!isfoundTernimal){
-            if (!this.findScoringPlaceToFallDown(dragingNodes)) {
+            if (!this.findAutoTerminalToFallDown(dragingNodes)) {
                 this.fallBackOriginPosition(dragingNodes);
+                cc.audioEngine.play(this.doubleFaildEffectAudio, false, 1);
                 return;
+            }else{
+                this.playGetScoreAnimation(dragingNodes[0],20);
+                this.flipNewCard(line);
             }
+        }else{
+            this.playGetScoreAnimation(dragingNodes[0],20);
+            this.flipNewCard(line);
         }
-        this.flipNewCard(line);
+        
     },
 
     // 移动失败返回原位
@@ -586,14 +644,19 @@ cc.Class({
         var firstDragingNode = dragingNodes[0];
         var component = firstDragingNode.getComponent("cardSprite");
 
+        
+
         if (component.numValue === 1) {
             for (let i = 0; i < 4; i++) {
                 var scoreBgNode = cc.find("cardScoreBg"+i,this.node);
 
                 if (scoreBgNode.children.length <= 1) {
+                    if (component.flipStatus == flipStatusHolder) {
+                        this.allHolderCards.pop();
+                    }
                     component.flipStatus = flipStatusScoring;
                     this.moveToPositionOverMainBg(firstDragingNode,scoreBgNode);
-
+                    this.playGetScoreAnimation(firstDragingNode,100);
                     return true;
                 }
 
@@ -608,11 +671,15 @@ cc.Class({
                 var topComponent = topCardNode.getComponent("cardSprite");
                 if (component.colorValue === topComponent.colorValue) {
                     if (component.numValue - topComponent.numValue === 1) {
-                        
+                        if (component.flipStatus == flipStatusHolder) {
+                            this.allHolderCards.pop();
+                        }
                         var toNodePosition = topCardNode.position;
                         var toWorldPosition = topCardNode.parent.convertToWorldSpaceAR(toNodePosition);
 
                         this.moveToPositionOverMainBg(firstDragingNode,scoreBgNode);
+
+                        this.playGetScoreAnimation(firstDragingNode,20);
 
                         return true;
 
@@ -624,7 +691,7 @@ cc.Class({
             
         }
 
-        cc.audioEngine.play(this.doubleFaildEffectAudio, false, 1);
+        
 
         return false;
     },
@@ -706,6 +773,43 @@ cc.Class({
     },
 
 
+    playGetScoreAnimation:function(node,score){
+        var increaseScoreNode = cc.instantiate(this.increaseScorePrefab);
+        
+        var fromNodePosition = node.position;
+        var fromWorldPosition = node.parent.convertToWorldSpaceAR(fromNodePosition);
+        var oriPosi = this.node.convertToNodeSpaceAR(fromWorldPosition);
+
+        increaseScoreNode.parent = this.node;
+        increaseScoreNode.position = oriPosi;
+        increaseScoreNode.opacity = 0;
+        increaseScoreNode.scale = 1.3;
+        var toNodeWorldPosition = this.scoreLabelNode.convertToWorldSpaceAR(cc.v2(0,0));
+        var toNodePosition = this.node.convertToNodeSpaceAR(toNodeWorldPosition);
+        increaseScoreNode.getComponent(cc.Label).string = "+"+score;
+        var t = cc.tween;
+        t(increaseScoreNode)
+        .parallel(
+            t().to(1,{position:cc.v2(toNodePosition.x+80,toNodePosition.y), easing: cc.easeOut}),
+            t().to(1,{opacity:255, easing: cc.easeOut}),
+            t().to(1,{scale:1, easing: cc.easeOut})
+
+        )
+        .to(0.5,{position:cc.v2(toNodePosition.x,toNodePosition.y),opacity:0,scaleX:1,scaleY:1})
+        .call((n)=>function(){
+            n.parent = null;
+        }
+            
+        )
+        .start();
+        var comLabel = this.scoreLabelNode.getComponent(cc.Label);
+        var currentScore = parseInt(comLabel.string);
+        currentScore += score;
+        comLabel.string = currentScore;
+
+        
+
+    },
 
     playTimeLeftAnimation:function(count){
         var file = "";
@@ -748,7 +852,17 @@ cc.Class({
         this.count = 60*5;
         this.startTimer();
 
-        this.bgmAudio_current = cc.audioEngine.playMusic(this.bgmAudio,false,1);
+        var c = 0;
+        var seed = 21;//parseInt('E1E3CAE2ED4D244C',16);
+        while (c < 110) {
+            c ++;
+            // seed = (seed * 17 + 49297) % 2332801;
+            seed = (seed * 5 + 1) % 52;
+            
+            cc.log("随机数====",seed);
+        }
+
+        this.bgmAudio_current = cc.audioEngine.playMusic(this.bgmAudio,true,1);
 
         // this.testPostsion();
     },
@@ -777,6 +891,27 @@ cc.Class({
 
             cc.audioEngine.resumeMusic(this.bgmAudio_current);
         }
+    },
+
+     /**
+     * 获取随机数
+     * @param  {[type]} min      下限
+     * @param  {[type]} max      上限
+     * @return {[type]}            [description]
+     */
+    randRange: function(min, max) {
+        var seed = this.seed;
+        if (seed == 0) {
+            console.error("随机种子为0");
+            return 0;
+        }
+
+        seed = (seed * 17 + 49297) % 2332801;
+        var rd = seed / 2332801.0;
+        this.seed = seed;
+        this.times = this.times + 1;
+
+        return Math.floor(rd * (max - min + 1)) + min;
     },
 
 

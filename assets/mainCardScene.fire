@@ -6016,7 +6016,7 @@
     },
     "_volume": 1,
     "_mute": false,
-    "_loop": false,
+    "_loop": true,
     "playOnLoad": false,
     "preload": false,
     "_id": "8aB6q1W8FG8IWUjTGEkv05"
@@ -6029,8 +6029,8 @@
       "__id__": 3
     },
     "_enabled": true,
-    "scoreNode": {
-      "__id__": 62
+    "scoreLabelNode": {
+      "__id__": 72
     },
     "timerNode": {
       "__id__": 57
@@ -6038,6 +6038,9 @@
     "cardSpriteFrame": [],
     "cardPrefab": {
       "__uuid__": "cd13bd70-fe1a-486a-b8dd-a21dd8764bf9"
+    },
+    "increaseScorePrefab": {
+      "__uuid__": "4bfe46aa-6b6a-44b5-8f01-f276ca2a249b"
     },
     "pausePrefab": {
       "__uuid__": "05ca91a4-25e8-4c9c-997c-3acabdf68b57"
@@ -6123,6 +6126,9 @@
     },
     "fanpaiEffectAudio": {
       "__uuid__": "9c64451c-3d9b-4c74-82fa-2b485b1b969d"
+    },
+    "moveEffectAudio": {
+      "__uuid__": "dbfd5758-4353-4653-a795-cf1715a85f04"
     },
     "_id": "acKePcR/lAk5lba6w2jlm3"
   },

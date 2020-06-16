@@ -186,6 +186,21 @@ cc.Class({
         this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
 
+    moveTopHolderCardToLeftWithNum:function (num) {
+        var width = this.someCardBg.node.width;
+        var left = this.someCardBg.node.x;
+        var top = this.someCardBg.node.y;
+        var gap = ( -width + 80*3)/2;
+        if(num > 3) {
+            return;
+        }
+        
+        for (let j = 0; j < this.allHolderCards.length; j++) {
+            const holderNode = this.allHolderCards[j];
+            var t = cc.tween;
+            t(holderNode).to(0.2,{position:cc.v2(left - gap,top)}).start();
+        }
+    },
 
     resreshBtnAction:function () {
       cc.log("重新翻牌");  
@@ -199,11 +214,7 @@ cc.Class({
 
         if (this.allCards.length > 0) {
             
-            for (let j = 0; j < this.allHolderCards.length; j++) {
-                const holderNode = this.allHolderCards[j];
-                var t = cc.tween;
-                t(holderNode).to(0.2,{position:cc.v2(left - gap,top)}).start();
-            }
+            this.moveTopHolderCardToLeftWithNum(Math.min(this.allCards.length,3));
 
             for (let i = 0; i < 3; i++) {
                 var node = this.allCards.pop();
@@ -236,9 +247,10 @@ cc.Class({
                         
                     })
                     .start();
+                    this.allHolderCards.push(node);
                 }
                 
-                this.allHolderCards.push(node);
+                
                 
 
                 

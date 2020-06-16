@@ -123,11 +123,14 @@ cc.Class({
             // this.node.position = this.node.parent.convertToNodeSpaceAR(touch.getLocation());
             // this.node.zOrder = -1;
             
+            
+
             this.dragingCards = [];
             // this.node.setSiblingIndex = -1;
             if(this.flipStatus === flipStatusPlaying){
                 
                 var parent = this.node.parent;
+                parent.setSiblingIndex(-1);
                 var children = parent.children;
                 for (let i = this.node.row; i < children.length; i++) {
                     

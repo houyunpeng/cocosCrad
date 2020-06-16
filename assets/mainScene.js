@@ -291,6 +291,9 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     testRandData:function(){
+        this.data = [25, 17, 19, 7, 1, 18, 0, 34, 40, 43, 31, 5, 39, 9, 26, 15, 22, 29, 35, 45, 4, 32, 2, 44, 33, 3, 20, 27, 11, 49, 21, 36, 51, 28, 46, 6, 47, 13, 37, 12, 41, 23, 48, 30, 14, 38, 24, 50, 10, 42, 8, 16];
+        return;
+
         var a = [];
         for (let i = 0; i < 52; i++) {
             a.push(i);
@@ -356,6 +359,12 @@ cc.Class({
                         n.scaleX = -1;
                         cc.tween(n).to(0.1,{scaleY:1}).start();
                         n.getComponent("cardSprite").flipStatus = flipStatusPlaying;
+
+                        if (this.flipedCardsCount == undefined) {
+                            this.flipedCardsCount = 0;
+                        }
+                        this.flipedCardsCount ++;
+
                     }
                     
                     cc.audioEngine.stop(this.fapaiAudio_current);
@@ -497,7 +506,9 @@ cc.Class({
         var childNode = this.findOutCardSpriteFromParent(playingNode);
 
         var comLast = childNode.getComponent("cardSprite");
-        var rowTop = childNode ? childNode.row : 0;
+
+        var rowTop = childNode ? (childNode.row >= 0?childNode.row:-1) : 0;//坑啊
+
         var toOriPosition = comLast ? childNode.position : cc.v2(0,0);
         var toOriPositionDeltY = comLast ? 30 : 0;
         var oriLine = dragingNodes[0].line;
@@ -567,7 +578,7 @@ cc.Class({
         }
         var firstDragingNode = dragingNodes[0];
         let line = firstDragingNode.line;
-        var  isfoundTernimal = this.findScoringPlaceToFallDown(dragingNodes,currentPosition);
+        var  isfoundTernimal = this.findScoringPlaceToFallDown(dragingNodes);
         if(!isfoundTernimal){
             if (!this.findTerminalToFallDown(dragingNodes,currentPosition)) {
                 this.fallBackOriginPosition(dragingNodes);
@@ -578,6 +589,11 @@ cc.Class({
                 this.flipNewCard(line);
             }
         }else{
+            if (this.allCards.length == 0 && this.allHolderCards.length == 0) {
+            
+                this.runClearAllCardsAction();
+            }
+
             this.playGetScoreAnimation(dragingNodes[0],20);
             this.flipNewCard(line);
         }
@@ -601,6 +617,12 @@ cc.Class({
                 this.flipNewCard(line);
             }
         }else{
+            if (this.allCards.length == 0 && this.allHolderCards.length == 0) {
+            
+                this.runClearAllCardsAction();
+            }
+            
+
             this.playGetScoreAnimation(dragingNodes[0],20);
             this.flipNewCard(line);
         }
@@ -660,7 +682,7 @@ cc.Class({
 
     },
 
-    findScoringPlaceToFallDown:function (dragingNodes,currentPosition) {
+    findScoringPlaceToFallDown:function (dragingNodes) {
         if (dragingNodes.length != 1) {
             return false; //只支持落一个
         }
@@ -796,6 +818,37 @@ cc.Class({
         // }
     },
 
+    runClearAllCardsAction:function(){
+
+
+        
+
+        for (let i = 0; i < 7; i++) {
+            var name = "playingCardsBg"+i;
+            let playingCardNode = cc.find("playingCardsBg"+i,this.node);
+            if(playingCardNode.children.length > 0){
+                var findNode = playingCardNode.children.slice(-1)[0];
+                if(this.findScoringPlaceToFallDown([findNode])){
+                    var self = this;
+                    this.scheduleOnce(function () {
+                        self.runClearAllCardsAction();
+                    },0.2);
+                    return;
+                };
+            }
+            
+        }
+
+        this.endGameToCommitScore();
+
+    },
+
+    endGameToCommitScore:function () {
+
+        var endGameNode = cc.instantiate(this.endGamePrefab);
+        endGameNode.parent = node.parent;
+        endGameNode.setSiblingIndex = -1;  
+    },
 
     playGetScoreAnimation:function(node,score){
         var increaseScoreNode = cc.instantiate(this.increaseScorePrefab);

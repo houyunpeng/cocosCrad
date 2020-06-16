@@ -17,6 +17,21 @@ cc.Class({
             default:null,
             type:cc.ProgressBar
         }
+        ,
+        musicBtn:{
+            default:null,
+            type:cc.Button
+        }
+        ,
+        effectBtn:{
+            default:null,
+            type:cc.Button
+        }
+        ,
+        verbriBtn:{
+            default:null,
+            type:cc.Button
+        }
         // foo: {
         //     // ATTRIBUTES:
         //     default: null,        // The default value will be used only when the component attaching
@@ -86,10 +101,20 @@ cc.Class({
         this.node.on(cc.Node.EventType.TOUCH_END,function(touch,event){
             if(this.currentProgressBar){
                 this.setProgress(this.currentProgressBar.progress);
+            }else{
+                this.close();
             }
-            
+            this.currentProgressBar = null;
             touch.stopPropagation();
         },this);
+    },
+    close:function () {
+        cc.tween(this.node)
+        .to(0.2,{opacity:0})
+        .call((n)=>{
+            n.parent = null;
+        })
+        .start();
     },
 
     setProgress:function (progress) {
@@ -103,24 +128,56 @@ cc.Class({
     musicSetting:function (btn) {
         var node = cc.find("Canvas/bg");
         var mainJs = node.getComponent("mainScene");
-        if(btn.isSelected){
-            btn.isSelected = false;
+        var self = this;
+        if(this.isMusicSelected){
+            this.isMusicSelected = false;
             cc.audioEngine.setVolume(mainJs.bgmAudio_current,this.musicProgressBar.progress);
+            
+            cc.loader.loadRes("game/solitaire_sound_progress",cc.SpriteFrame,function(err,spriteFrame){
+                cc.log(err,spriteFrame);
+                if(!err){
+                    // var barNode =cc.find("bar",self.musicProgressBar);
+                    // barNode.getComponent(cc.Sprite).spriteFrame = spriteFrame
+                    self.musicProgressBar.barSprite.spriteFrame = spriteFrame;
+                }
+            });
         }else{
-            btn.isSelected = true;
+            this.isMusicSelected = true;
             cc.audioEngine.setVolume(mainJs.bgmAudio_current,0);
+            cc.loader.loadRes("game/solitaire_soundoff_progress",cc.SpriteFrame,function(err,spriteFrame){
+                cc.log(err,spriteFrame);
+                if(!err){
+                    // var barNode =cc.find("bar",self.musicProgressBar);
+                    // barNode.getComponent(cc.Sprite).spriteFrame = spriteFrame
+                    self.musicProgressBar.barSprite.spriteFrame = spriteFrame;
+                }
+            });
         }
         cc.log("music");
     },
     effectSetting:function (btn) {
         var node = cc.find("Canvas/bg");
         var mainJs = node.getComponent("mainScene");
-        if(btn.isSelected){
-            btn.isSelected = false;
+        var self = this;
+        if(this.isEffectSelected){
+            this.isMusicSelected = false;
             cc.audioEngine.setVolume(mainJs.bgmAudio_current,this.musicProgressBar.progress);
+            
+            cc.loader.loadRes("game/solitaire_sound_progress",cc.SpriteFrame,function(err,spriteFrame){
+                cc.log(err,spriteFrame);
+                if(!err){
+                    self.effectProgressBar.barSprite.spriteFrame = spriteFrame;
+                }
+            });
         }else{
-            btn.isSelected = true;
+            this.isEffectSelected = true;
             cc.audioEngine.pauseMusic(mainJs.bgmAudio_current,0);
+            cc.loader.loadRes("game/solitaire_soundoff_progress",cc.SpriteFrame,function(err,spriteFrame){
+                cc.log(err,spriteFrame);
+                if(!err){
+                    self.effectProgressBar.barSprite.spriteFrame = spriteFrame;
+                }
+            });
         }
         cc.log("effect");
     },

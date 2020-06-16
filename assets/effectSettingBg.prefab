@@ -1549,7 +1549,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 90,
+      "width": 300,
       "height": 15
     },
     "_anchorPoint": {
@@ -1628,7 +1628,7 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        70,
+        280,
         -2.6867397195928788e-14,
         0,
         0,
@@ -1838,7 +1838,7 @@
       "__id__": 42
     },
     "_N$mode": 0,
-    "_N$progress": 0.3,
+    "_N$progress": 1,
     "_N$reverse": false,
     "_id": ""
   },
@@ -1958,7 +1958,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 210,
+      "width": 300,
       "height": 15
     },
     "_anchorPoint": {
@@ -2037,7 +2037,7 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        190,
+        280,
         -1.4210854715202004e-14,
         0,
         0,
@@ -2247,7 +2247,7 @@
       "__id__": 54
     },
     "_N$mode": 0,
-    "_N$progress": 0.7,
+    "_N$progress": 1,
     "_N$reverse": false,
     "_id": ""
   },
@@ -2509,6 +2509,15 @@
     },
     "effectProgressBar": {
       "__id__": 58
+    },
+    "musicBtn": {
+      "__id__": 33
+    },
+    "effectBtn": {
+      "__id__": 22
+    },
+    "verbriBtn": {
+      "__id__": 11
     },
     "_id": ""
   },

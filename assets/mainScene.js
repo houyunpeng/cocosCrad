@@ -155,11 +155,11 @@ cc.Class({
 
     pausuBtnAction:function(){
 
-        var pauseSprite = cc.instantiate(this.pausePrefab);
-        pauseSprite.parent = this.node.parent;
-        pauseSprite.setSiblingIndex = -1;
-        var pauseScript = pauseSprite.getComponent("pauseScript");
-        var animation = pauseSprite.getComponent(cc.Animation);
+        this.pauseSprite = this.pauseSprite ? this.pauseSprite : cc.instantiate(this.pausePrefab);
+        this.pauseSprite.parent = this.node.parent;
+        this.pauseSprite.setSiblingIndex = -1;
+        var pauseScript = this.pauseSprite.getComponent("pauseScript");
+        var animation = this.pauseSprite.getComponent(cc.Animation);
         animation.play();
 
         this.pauseOrResume(true);
@@ -167,9 +167,9 @@ cc.Class({
         this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
     soundBtnAction:function(){
-        var settingEffectPrefab = cc.instantiate(this.settingEffectPrefab);
-        settingEffectPrefab.parent = this.node.parent;        
-
+        this.settingEffectNode = this.settingEffectNode ? this.settingEffectNode : cc.instantiate(this.settingEffectPrefab);
+        this.settingEffectNode.parent = this.node.parent;        
+        this.settingEffectNode.opacity = 255;
         cc.log(this.someCardBg.node.width);
         this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },

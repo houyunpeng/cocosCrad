@@ -48,7 +48,8 @@ cc.Class({
         var node = cc.find("Canvas/bg");
         var mainJs = node.getComponent("mainScene");
         var endGameNode = cc.instantiate(mainJs.endGamePrefab);
-        endGameNode.parent = node;
+        endGameNode.parent = node.parent;
+        endGameNode.setSiblingIndex = -1;
         
     },
 

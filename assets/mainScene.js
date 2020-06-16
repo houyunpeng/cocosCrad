@@ -50,6 +50,10 @@ cc.Class({
             default:null,
             type:cc.Prefab
         },
+        settingEffectPrefab:{
+            default:null,
+            type:cc.Prefab
+        },
         finaleScoreArray:{
             default:[],
             type:[cc.Sprite]
@@ -163,6 +167,9 @@ cc.Class({
         this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
     soundBtnAction:function(){
+        var settingEffectPrefab = cc.instantiate(this.settingEffectPrefab);
+        settingEffectPrefab.parent = this.node.parent;        
+
         cc.log(this.someCardBg.node.width);
         this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
@@ -897,6 +904,12 @@ cc.Class({
             cc.audioEngine.resumeMusic(this.bgmAudio_current);
         }
     },
+
+
+    setVolume:function (value) {
+        cc.audioEngine.setVolume(this.bgmAudio_current, value);
+    },
+
 
      /**
      * 获取随机数

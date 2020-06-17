@@ -882,7 +882,7 @@ cc.Class({
         var comLabel = this.scoreLabelNode.getComponent(cc.Label);
         var currentScore = parseInt(comLabel.string);
         
-        comLabel.string = currentScore;
+        comLabel.string = String(currentScore);
         var obj = { a: currentScore };
         currentScore += score;
         cc.tween(obj).
@@ -945,18 +945,22 @@ cc.Class({
         this.count = 60*5;
         this.startTimer();
 
-        var c = 0;
-        var seed = 21;//parseInt('E1E3CAE2ED4D244C',16);
-        while (c < 110) {
-            c ++;
-            // seed = (seed * 17 + 49297) % 2332801;
-            seed = (seed * 5 + 1) % 52;
+        // var c = 0;
+        // var seed = 21;//parseInt('E1E3CAE2ED4D244C',16);
+        // while (c < 110) {
+        //     c ++;
+        //     // seed = (seed * 17 + 49297) % 2332801;
+        //     seed = (seed * 5 + 1) % 52;
             
-            cc.log("随机数====",seed);
-        }
+        //     cc.log("随机数====",seed);
+        // }
 
-        this.bgmAudio_current = cc.audioEngine.playMusic(this.bgmAudio,true,1);
-
+        this.scheduleOnce(function () {
+            this.bgmAudio_current = cc.audioEngine.playMusic(this.bgmAudio,true,1);
+        
+            // this.fapaiAudio_current = cc.audioEngine.playMusic(this.fapaiAudio,true,1);
+        },0.1);
+        cc.log("");
         // this.testPostsion();
     },
 

@@ -179,6 +179,11 @@ cc.Class({
     },
     undoBtnAction:function(){
         cc.log("撤销");
+        // if(this.undoTween){
+        //     this.undoTween.clone(this.undoNode).reverseTime().start();
+        //     // this.undoTween = null;
+        // }
+
         this.clickEffectAudio_current = cc.audioEngine.playEffect(this.clickEffectAudio);
     },
     indecatorBtnAction:function(){
@@ -519,12 +524,16 @@ cc.Class({
             var worldPoint = node.parent.convertToWorldSpaceAR(node.position);
             var bg_position_ori = this.node.convertToNodeSpaceAR(worldPoint);
 
-            var toWorldPosi = childNode ?childNode.parent.convertToWorldSpaceAR(toPoint):playingNode.parent.convertToWorldSpaceAR(cc.v2(0,0));
+            //如果是老K  childNode 其实就是playingNode
+            var toWorldPosi = (childNode != playingNode) ? childNode.parent.convertToWorldSpaceAR(toPoint):playingNode.parent.convertToWorldSpaceAR(playingNode.position);
             var bg_position_to = this.node.convertToNodeSpaceAR(toWorldPosi);
             // node.position = playingNode.convertToNodeSpaceAR(worldPoint);
             
-            node.position = bg_position_ori;
-            node.parent = this.node;
+            if (node.parent != this.node) {
+                node.position = bg_position_ori;
+                node.parent = this.node;
+            }
+            
         
             node.row = rowTop + m + 1;
             node.line = toLine;
@@ -565,6 +574,10 @@ cc.Class({
 
             })
             .start();
+            // tween(node).start();
+            
+            // this.undoTween = tween;
+            // this.undoNode = node;
 
             this.moveEffectAudio_current = cc.audioEngine.playEffect(this.moveEffectAudio);
         }

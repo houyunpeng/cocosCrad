@@ -149,6 +149,16 @@ cc.Class({
                 }
 
             }else if(this.flipStatus === flipStatusHolder){
+
+                var parent = cc.find("Canvas/bg");
+                var mainScene = parent.getComponent("mainScene");
+                if (mainScene.allHolderCards.slice(-1)[0] != this.node) {
+                    return;
+                }
+                this.dragingCards.push(this.node);
+                this.prePoint = this.node.position;
+                this.preParent = this.node.parent;
+            }else if(this.flipStatus === flipStatusScoring){
                 this.dragingCards.push(this.node);
                 this.prePoint = this.node.position;
                 this.preParent = this.node.parent;

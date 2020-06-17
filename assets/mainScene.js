@@ -498,6 +498,8 @@ cc.Class({
                 node.scaleX = -1;
                 cc.tween(node).to(0.1,{scaleY:1}).start();
                 com.flipStatus = flipStatusPlaying;
+
+                this.playGetScoreAnimation(dragingNodes[0],20);
             }
         }
 
@@ -539,9 +541,20 @@ cc.Class({
             node.line = toLine;
             node.c_posi = toPoint;
 
+            /** 如果已经得过分 则进行扣分*/
+            if (node.getComponent("cardSprite").flipStatus === flipStatusScoring) {
+                this.playGetScoreAnimation(node,-20);
+            }else{
+                this.playGetScoreAnimation(node,20);
+            }
+
+
             if (node.getComponent("cardSprite").flipStatus === flipStatusHolder) {
                 this.allHolderCards.pop();
             }
+
+            node.getComponent("cardSprite").flipStatus = flipStatusPlaying;
+
             cc.tween(node).to(0.15,{position:cc.v2(bg_position_to)})
             .call((n)=>{
                 n.parent = playingNode;
@@ -549,7 +562,7 @@ cc.Class({
                 if (n.getComponent("cardSprite").flipStatus === flipStatusHolder) {
                     // this.allHolderCards.pop();//为什么pop()方法有时候不会删除最有一个元素呢？
                     // this.allHolderCards.splice(this.allHolderCards.length - 1,1);//删除最有一个元素
-                    n.getComponent("cardSprite").flipStatus = flipStatusPlaying;
+                    
 
                     if (this.allHolderCards.length > 0) {
                         var width = this.someCardBg.node.width;
@@ -579,9 +592,9 @@ cc.Class({
             // this.undoTween = tween;
             // this.undoNode = node;
 
-            this.moveEffectAudio_current = cc.audioEngine.playEffect(this.moveEffectAudio);
+            
         }
-        
+        this.moveEffectAudio_current = cc.audioEngine.playEffect(this.moveEffectAudio);
         
     },
 
@@ -598,7 +611,6 @@ cc.Class({
                 cc.audioEngine.play(this.doubleFaildEffectAudio, false, 1);
                 return;
             }else{
-                this.playGetScoreAnimation(dragingNodes[0],20);
                 this.flipNewCard(line);
             }
         }else{
@@ -607,7 +619,6 @@ cc.Class({
                 this.runClearAllCardsAction();
             }
 
-            this.playGetScoreAnimation(dragingNodes[0],20);
             this.flipNewCard(line);
         }
         
@@ -626,7 +637,7 @@ cc.Class({
                 cc.audioEngine.play(this.doubleFaildEffectAudio, false, 1);
                 return;
             }else{
-                this.playGetScoreAnimation(dragingNodes[0],20);
+                
                 this.flipNewCard(line);
             }
         }else{
@@ -636,7 +647,6 @@ cc.Class({
             }
             
 
-            this.playGetScoreAnimation(dragingNodes[0],20);
             this.flipNewCard(line);
         }
         
@@ -703,6 +713,9 @@ cc.Class({
         var firstDragingNode = dragingNodes[0];
         var component = firstDragingNode.getComponent("cardSprite");
 
+        if (component.flipStatus === flipStatusScoring) {
+            return;
+        }
         
 
         if (component.numValue === 1) {
@@ -735,7 +748,7 @@ cc.Class({
                         }
                         var toNodePosition = topCardNode.position;
                         var toWorldPosition = topCardNode.parent.convertToWorldSpaceAR(toNodePosition);
-
+                        component.flipStatus = flipStatusScoring;
                         this.moveToPositionOverMainBg(firstDragingNode,scoreBgNode);
 
                         this.playGetScoreAnimation(firstDragingNode,20);
@@ -858,11 +871,53 @@ cc.Class({
 
     endGameToCommitScore:function () {
 
+        this.flyingAllCards();
+
+        this.pauseOrResume(true);
         var endGameNode = cc.instantiate(this.endGamePrefab);
         endGameNode.parent = this.node;
         endGameNode.setSiblingIndex = -1;  
+
     },
 
+    flyingAllCards:function(){
+        for (let i = 0; i < 4; i++) {
+            var name = "cardScoreBg"+i;
+            let playingCardNode = cc.find(name,this.node);
+            if(playingCardNode.children.length > 0){
+                var findNode = playingCardNode.children.slice(-1)[0];
+
+                if (findNode.name != "cardSprite") {
+                    return;
+                }
+
+
+
+                findNode.parent = playingCardNode.parent;
+                findNode.position = playingCardNode.position;
+
+                
+                var maxheight = this.node.height;
+                var t = cc.tween;
+                t(findNode).parallel(
+                    t().by(0.5,{rotation:-180}).repeat(5),
+                    t().then(t().by(0.2,{position:cc.v2(40,80)})).then(t().by(0.6,{position:cc.v2(40,-maxheight)}))
+                ).start();
+
+                var self = this;
+                this.scheduleOnce(function () {
+                    self.flyingAllCards();
+                },0.1);
+                return;
+            }
+            
+        }
+    },
+
+    /**
+     * score为正数代表加分  为负数代表扣分
+     * 
+    */
     playGetScoreAnimation:function(node,score){
         var increaseScoreNode = cc.instantiate(this.increaseScorePrefab);
         
@@ -871,12 +926,24 @@ cc.Class({
         var oriPosi = this.node.convertToNodeSpaceAR(fromWorldPosition);
 
         increaseScoreNode.parent = this.node;
-        increaseScoreNode.position = oriPosi;
-        increaseScoreNode.opacity = 0;
+        
+        
         increaseScoreNode.scale = 1.3;
         var toNodeWorldPosition = this.scoreLabelNode.convertToWorldSpaceAR(cc.v2(0,0));
-        var toNodePosition = this.node.convertToNodeSpaceAR(toNodeWorldPosition);
-        increaseScoreNode.getComponent(cc.Label).string = "+"+score;
+        
+
+        var scoreString = score >= 0 ? "+"+score : String(score);
+
+        increaseScoreNode.getComponent(cc.Label).string = scoreString;
+
+        var toNodePosition = score >= 0 ? this.node.convertToNodeSpaceAR(toNodeWorldPosition) : oriPosi;
+        increaseScoreNode.position =  score >= 0 ? oriPosi : this.node.convertToNodeSpaceAR(toNodeWorldPosition);
+        increaseScoreNode.color = score < 0 ? cc.Color.RED : cc.Color.GREEN;
+        var fromOpacity = score >= 0 ?1:0;
+        var toOpacity = score >= 0?0:1;
+
+        increaseScoreNode.opacity = fromOpacity;
+
         var t = cc.tween;
         t(increaseScoreNode)
         .parallel(
@@ -885,19 +952,25 @@ cc.Class({
             t().to(1,{scale:1, easing: cc.easeOut})
 
         )
-        .to(0.5,{position:cc.v2(toNodePosition.x,toNodePosition.y),opacity:0,scaleX:1,scaleY:1})
+        .to(0.5,{
+            position:cc.v2(toNodePosition.x,toNodePosition.y),
+            opacity:toOpacity,
+            scaleX:1,
+            scaleY:1
+        })
         .call((n)=>function(){
-            n.parent = null;
-        }
-            
+                n.parent = null;
+            }
         )
         .start();
+        
         var comLabel = this.scoreLabelNode.getComponent(cc.Label);
         var currentScore = parseInt(comLabel.string);
         
         comLabel.string = String(currentScore);
         var obj = { a: currentScore };
         currentScore += score;
+
         cc.tween(obj).
         to(1, { a: currentScore}, {
             progress:(start, end, current, ratio)=>{
@@ -907,12 +980,7 @@ cc.Class({
                 return value;
         }})
         .start();
-        // cc.tween(comLabel)
-        // .to(0.4,{string:currentScore})
-        // .call((n)=>{
-        //     // n.string = currentScore;
-        // })
-        // .start();
+        
         
 
     },

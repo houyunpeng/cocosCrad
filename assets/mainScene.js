@@ -783,7 +783,7 @@ cc.Class({
 
                 
             }else{
-                return false;
+                // return false;
             }
             
         }
@@ -845,7 +845,7 @@ cc.Class({
                     var self = this;
                     this.scheduleOnce(function () {
                         self.runClearAllCardsAction();
-                    },0.2);
+                    },0.1);
                     return;
                 };
             }

@@ -115,7 +115,7 @@ cc.Class({
                 touch.stopPropagation();
             // }
             
-
+            this.touchPoint = touch.getLocation();
             var touchP = this.node.convertToNodeSpaceAR(touch.getLocation());
             cc.log("点击的点：",touchP.x,touchP.y);
             var anchor = cc.v2(0.5 + touchP.x*2/this.node.width,0.5 + touchP.y*2/this.node.height);
@@ -165,7 +165,12 @@ cc.Class({
 
         this.node.on(cc.Node.EventType.TOUCH_MOVE,function(touch,event){
 
-            this.isDraging = true;
+            let prePoint = touch.getPreviousLocation();
+            let curPoint = touch.getLocation();
+            if (Math.abs(this.touchPoint.x - curPoint.x) > 40 || Math.abs(this.touchPoint.y - curPoint.y) > 40) {
+                this.isDraging = true;
+            }
+            
 
             touch.stopPropagation();
             var point = touch.getLocation();
@@ -173,19 +178,18 @@ cc.Class({
             // var touchPoint1 = this.parent.convertToNodeSpaceAR(touch.getLocation());
             // this.setPosition(touchPoint1.x,touchPoint1.y);
             //将纸牌移动到bg上
-            if (this.flipStatus === flipStatusHolder) {
-                var parent = cc.find("Canvas/bg");
-                this.node.parent = parent;
-                this.node.position = parent.convertToNodeSpaceAR(point);
-            } else if(this.flipStatus === flipStatusPlaying){
+            // if (this.flipStatus === flipStatusHolder) {
+            //     var parent = cc.find("Canvas/bg");
+            //     this.node.parent = parent;
+            //     this.node.position = parent.convertToNodeSpaceAR(point);
+            // } else if(this.flipStatus === flipStatusPlaying){
                 
                 var parent = this.node.parent;
                 var children = parent.children;
                 for (let i = 0; i < this.dragingCards.length; i++) {
                     const subNode = this.dragingCards[i];
 
-                    let prePoint = touch.getPreviousLocation();
-                    let curPoint = touch.getLocation();
+                    
 
                     var position = subNode.position;
                     position.y = position.y + (curPoint.y - prePoint.y);
@@ -194,7 +198,7 @@ cc.Class({
                     
                 }
 
-            }
+            // }
 
         },this);
         this.node.on(cc.Node.EventType.TOUCH_END,function(touch,event){

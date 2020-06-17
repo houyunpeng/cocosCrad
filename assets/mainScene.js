@@ -846,7 +846,7 @@ cc.Class({
     endGameToCommitScore:function () {
 
         var endGameNode = cc.instantiate(this.endGamePrefab);
-        endGameNode.parent = node.parent;
+        endGameNode.parent = this.node;
         endGameNode.setSiblingIndex = -1;  
     },
 
@@ -881,9 +881,25 @@ cc.Class({
         .start();
         var comLabel = this.scoreLabelNode.getComponent(cc.Label);
         var currentScore = parseInt(comLabel.string);
-        currentScore += score;
+        
         comLabel.string = currentScore;
-
+        var obj = { a: currentScore };
+        currentScore += score;
+        cc.tween(obj).
+        to(1, { a: currentScore}, {
+            progress:(start, end, current, ratio)=>{
+                var value = start + (end - start) * ratio;
+                let num = Math.round(value);
+                comLabel.string = String(num);
+                return value;
+        }})
+        .start();
+        // cc.tween(comLabel)
+        // .to(0.4,{string:currentScore})
+        // .call((n)=>{
+        //     // n.string = currentScore;
+        // })
+        // .start();
         
 
     },

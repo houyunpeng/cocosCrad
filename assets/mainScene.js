@@ -544,8 +544,6 @@ cc.Class({
             /** 如果已经得过分 则进行扣分*/
             if (node.getComponent("cardSprite").flipStatus === flipStatusScoring) {
                 this.playGetScoreAnimation(node,-20);
-            }else{
-                this.playGetScoreAnimation(node,20);
             }
 
 
@@ -593,6 +591,11 @@ cc.Class({
             // this.undoNode = node;
 
             
+        }
+
+        if (node.getComponent("cardSprite").flipStatus === flipStatusScoring) {
+        }else{
+            this.playGetScoreAnimation(node,20);
         }
         this.moveEffectAudio_current = cc.audioEngine.playEffect(this.moveEffectAudio);
         
@@ -871,18 +874,19 @@ cc.Class({
 
     endGameToCommitScore:function () {
 
-        this.flyingAllCards();
+        this.flyingAllCards(0);
 
         this.pauseOrResume(true);
         var endGameNode = cc.instantiate(this.endGamePrefab);
-        endGameNode.parent = this.node;
+        endGameNode.parent = this.node.parent;
         endGameNode.setSiblingIndex = -1;  
 
     },
 
-    flyingAllCards:function(){
-        for (let i = 0; i < 4; i++) {
-            var name = "cardScoreBg"+i;
+    flyingAllCards:function(index){
+        
+        // for (let i = 0; i < 4; i++) {
+            var name = "cardScoreBg"+index%4;
             let playingCardNode = cc.find(name,this.node);
             if(playingCardNode.children.length > 0){
                 var findNode = playingCardNode.children.slice(-1)[0];
@@ -906,12 +910,12 @@ cc.Class({
 
                 var self = this;
                 this.scheduleOnce(function () {
-                    self.flyingAllCards();
+                    self.flyingAllCards(index++);
                 },0.1);
                 return;
             }
             
-        }
+        // }
     },
 
     /**
